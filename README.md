@@ -14,7 +14,7 @@ Things I've managed to implement:
     
     -> A generic "piece" class that allows us to create specific pieces. i.e Pawns, Rooks, Knights, Bishops, Queens and Kings
     
-    -> A move system. Making use of a move "(fromRow:fromCol) - (toRow:toCol)" system
+    -> A move system. Making use of "from-to" coordinates, e.g: 7555 moves (row,col)=(7,5) to (row,col)=(5,5)
     
     -> Move validation. Check to see if a given move is legal. Can that piece move like that?
     

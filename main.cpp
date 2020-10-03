@@ -38,7 +38,7 @@ std::array<int,4> parseInput(const std::string& playerMove){
 	
 	for(int i = 0; i < 4; i++){
 		move.at(i) = std::stoi(playerMove.substr(i,1)) - 1; //subtracting one because the actual coordinates are from 0-7 not 1-8. You know, cause of how arrays work
-		// move[i] = std::atoi(playerMove.substr(i,1).c_str()) - 1; <-this would be fine too
+		//move[i] = std::stoi(playerMove.substr(i,1)) - 1;
 	}
 	
 	return move;

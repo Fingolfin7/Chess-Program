@@ -5,7 +5,7 @@ it works and all the pieces move as they should. That's something.
 
 "ChessPrjct.h" is the header file containing the "piece", "square" and "chessboard" classes.
 "ChessPrjct.cpp" is a cpp file with the definitions for the classes mentioned above as well as a few functions.
-"main.cpp" is were you should compile and run your code from. This project was undertaken in DevC++ but it should work fine in MS Visual Studio.
+"main.cpp" is were you should compile and run your code from. 
 
 
 Things I've managed to implement:  

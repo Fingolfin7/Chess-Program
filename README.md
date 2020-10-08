@@ -21,16 +21,16 @@ Things I've managed to implement:
     -> And a Turn system. Check to see if it's black's or whites turn
     
     -> Kings are always seperated from each other by at least one square in every direction.
+    
+    -> Checks, and
+    
+    -> Checkmate (almost, still a little buggy)
 
 Things I have not managed to implement:
 
     -> en-passant captures,
     
-    -> castling,
-    
-    -> checks, and
-    
-    -> checkmate. (yeah... I know.)
+    -> castling.
 
 I might come back in the future and add in what's missing. 
 

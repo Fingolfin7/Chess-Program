@@ -109,6 +109,31 @@ void ChessBoard::move(int fromRow, int fromCol, int toRow, int toCol){
 
 }
 
+bool ChessBoard::checkAfterMove(int fromRow, int fromCol, int toRow, int toCol) {
+	Piece temp;
+	bool stillCheck = false;
+
+	//make move
+	boardSquare[toRow][toCol].occupyingPiece = boardSquare[fromRow][fromCol].occupyingPiece;
+	boardSquare[toRow][toCol].hasPiece = true;
+
+	boardSquare[fromRow][fromCol].occupyingPiece = temp;
+	boardSquare[fromRow][fromCol].hasPiece = false;
+
+	if (isInCheck()) {// is the king still in check?
+		stillCheck = true;
+	}
+
+	//undo move
+	boardSquare[fromRow][fromCol].occupyingPiece = boardSquare[toRow][toCol].occupyingPiece;
+	boardSquare[fromRow][fromCol].hasPiece = true;
+
+	boardSquare[toRow][toCol].occupyingPiece = temp;
+	boardSquare[toRow][toCol].hasPiece = false;
+
+	return stillCheck;
+}
+
 bool ChessBoard::Piece::moveIsLegal(int fromRow, int fromCol, int toRow, int toCol, const ChessBoard *cBoard){
 	bool isLegal = false;
 	
@@ -514,7 +539,6 @@ bool ChessBoard::Piece::moveIsLegal(int fromRow, int fromCol, int toRow, int toC
 	return isLegal;
 }
 
-
 bool ChessBoard::isInCheck() {
 	char kingColour = checkTurn();
 	char kingSymbol = ' ';
@@ -545,4 +569,219 @@ bool ChessBoard::isInCheck() {
 	}
 
 	return isInCheck;
+}
+
+bool ChessBoard::isInCheck(int posRow, int posCol) {
+	char kingColour = checkTurn();
+	char kingSymbol = ' ';
+	bool isInCheck = false;
+
+	kingColour == 'W' ? kingSymbol = 'K' : kingSymbol = 'k';
+
+	//loop through all the pieces to see which ones can capture the king on the next move
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour != kingColour) {//only check enemy pieces
+				if (boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, posRow, posCol, this)) {//check if that piece can mover from it's position to the king
+					isInCheck = true;
+				}
+			}
+		}
+	}
+
+	return isInCheck;
+}
+
+bool ChessBoard::Checkmate() {
+	char kingColour = checkTurn();
+	char kingSymbol = ' ';
+	int pos[2] = { 0, 0 };
+	bool isCheckmate = isInCheck();// if the king is in check, assume checkmate and then check if that is true later
+
+	kingColour == 'W' ? kingSymbol = 'K' : kingSymbol = 'k';
+
+	//get the position of the king
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.symbol == kingSymbol) {
+				pos[0] = i;
+				pos[1] = j;
+			}
+		}
+	}
+
+	int aroundKing[8][2] = {
+							{1,0},//row above, same col
+							{1,1},//row above, next col
+							{1,-1},//row above, previous col
+
+							{0,1},//same row, next col
+							{0,-1},//same row, previous col
+
+							{-1,0},//row below, same col
+							{-1,1},//row below, next col
+							{-1,-1}//row below, previous col
+	};
+
+	int eighthRank[5][2] = {
+							{1,0},//row above, same col
+							{1,1},//row above, next col
+							{1,-1},//row above, previous col
+
+							{0,1},//same row, next col
+							{0,-1},//same row, previous col
+	};
+
+	int firstRank[5][2] = {
+							{0,1},//same row, next col
+							{0,-1},//same row, previous col
+
+							{-1,0},//row below, same col
+							{-1,1},//row below, next col
+							{-1,-1}//row below, previous col
+	};
+
+	int eighthFile[5][2] = {
+							{1,0},//row above, same col
+							{1,-1},//row above, previous col
+							{0,-1},//same row, previous col
+
+							{-1,0},//row below, same col
+							{-1,-1}//row below, previous col
+	};
+
+	int firstFile[5][2] = {
+							{1,0},//row above, same col
+							{1,1},//row above, next col
+
+							{0,1},//same row, next col
+
+							{-1,0},//row below, same col
+							{-1,1},//row below, next col
+	};
+
+	if (isCheckmate)
+	{
+		
+		if (pos[0] > 0 && pos[0] < 7 && pos[1] > 0 && pos[1] < 7) {
+			for (int i = 0; i < 8; i++) {
+				//does the king have an escape square?
+				if (boardSquare[pos[0] + aroundKing[i][0]][pos[1] + aroundKing[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1], this)) {
+					if (!isInCheck(pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1])) {//loops through the area around the king and check if it will be check there
+						isCheckmate = false;
+					}
+				}
+				//can the check be blocked by one of our pieces?
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1], this)) {
+							if (!checkAfterMove(i, j, pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1])) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
+
+				//can the attcking piece be captured by one of our pieces?
+
+			}
+		}
+
+		else if (pos[0] == 0) {
+			for (int i = 0; i < 5; i++) {
+				if (boardSquare[pos[0] + eighthRank[i][0]][pos[1] + eighthRank[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1], this)) {
+					if (!isInCheck(pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1])) {
+						isCheckmate = false;
+					}
+				}
+
+				//can the check be blocked by one of our pieces?
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1], this)) {
+							if (!checkAfterMove(i, j, pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1])) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		else if (pos[0] == 7) {
+			for (int i = 0; i < 5; i++) {
+				if (boardSquare[pos[0] + firstRank[i][0]][pos[1] + firstRank[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + firstRank[i][0], pos[1] + firstRank[i][1], this)) {
+					if (!isInCheck(pos[0] + firstRank[i][0], pos[1] + firstRank[i][1])) {
+						isCheckmate = false;
+					}
+				}
+
+				//can the check be blocked by one of our pieces?
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + firstRank[i][0], pos[1] + firstRank[i][1], this)) {
+							if (!checkAfterMove(i, j, pos[0] + firstRank[i][0], pos[1] + firstRank[i][1])) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		else if (pos[1] == 0) {
+			for (int i = 0; i < 5; i++) {
+				if (boardSquare[pos[0] + firstFile[i][0]][pos[1] + firstFile[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + firstFile[i][0], pos[1] + firstFile[i][0], this)) {
+					if (!isInCheck(pos[0] + firstFile[i][0], pos[1] + firstFile[i][1])) {
+						isCheckmate = false;
+					}
+				}
+
+				//can the check be blocked by one of our pieces?
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + firstFile[i][0], pos[1] + firstFile[i][1], this)) {
+							if (!checkAfterMove(i, j, pos[0] + firstFile[i][0], pos[1] + firstFile[i][1])) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		else if (pos[1] == 7) {
+			for (int i = 0; i < 5; i++) {
+				if (boardSquare[pos[0] + eighthFile[i][0]][pos[1] + eighthFile[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1], this)) {
+					if (!isInCheck(pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1])) {
+						isCheckmate = false;
+					}
+				}
+
+				//can the check be blocked by one of our pieces?
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1], this)) {
+							if (!checkAfterMove(i, j, pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1])) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		//can the check be blocked?
+
+
+		//can the attacking piece be captured?
+		
+	}
+
+	return isCheckmate;
 }

@@ -37,7 +37,7 @@ std::array<int,4> parseInput(const std::string& playerMove){
 	std::array<int, 4>move;
 	
 	for(int i = 0; i < 4; i++){
-		move.at(i) = std::stoi(playerMove.substr(i,1)) - 1; //subtracting one because the actual coordinates are from 0-7 not 1-8. You know, cause of how arrays work
+		move.at(i) = std::stoi(playerMove.substr(i,1)) - 1; //subtracting one because the actual coordinates are 0-7 not 1-8.
 		//move[i] = std::stoi(playerMove.substr(i,1)) - 1;
 	}
 	
@@ -48,24 +48,39 @@ int main(){
 	ChessBoard myChessBoard;
 	std::string playerMove;
 	std::array<int, 4> parsedMove;
+	bool gameOver = false;
 	
 	//draw(myChessBoard);
 	
-	while(playerMove.length() != -1){//basically an infinit loop
+	while(!gameOver){//basically an infinit loop
 	
 		try{
 			draw(myChessBoard);
-			std::cout<<"Enter move: " << std::endl;
-			std::cout<<">";
-			std::getline(std::cin, playerMove);
-		
-			parsedMove = parseInput(playerMove);
-			
-			myChessBoard.move(parsedMove[0],parsedMove[1],parsedMove[2],parsedMove[3]);
-			
-			//draw(myChessBoard);
-			
-			playerMove.clear();
+			if (!myChessBoard.Checkmate()) {
+				std::cout << "Enter move: " << std::endl;
+				std::cout << ">";
+				std::getline(std::cin, playerMove);
+
+				parsedMove = parseInput(playerMove);
+
+				myChessBoard.move(parsedMove[0], parsedMove[1], parsedMove[2], parsedMove[3]);
+
+				//draw(myChessBoard);
+
+				playerMove.clear();
+			}
+
+			else {
+				char winnerColour = ' ';
+				std::string winner = " ";
+
+				winnerColour = myChessBoard.checkTurn();
+				winnerColour == 'W' ? winner = "Black" : winner = "White"; //we are setting the winner to the opposite of WinnerColour because the mate would have been delivered in the previous turn
+				std::cout << "Checkmate! " << winner << " is victorious!" << std::endl;
+				std::cin.get();
+
+				gameOver = true;
+			}
 		}
 			
 		catch(...){//to handle invalid inputs
@@ -76,6 +91,6 @@ int main(){
 		}
 	}
 	
-	std::cin.get();
+	//std::cin.get();
 	return 0;
 }

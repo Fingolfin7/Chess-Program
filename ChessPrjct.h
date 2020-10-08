@@ -52,8 +52,10 @@ class ChessBoard{
 		ChessBoard();
 		char checkTurn();
 		bool isInCheck();
+		bool isInCheck(int posRow, int posCol);
 		bool Checkmate();
 		void move(int formRow, int fromCol, int toRow, int toCol);
+		bool checkAfterMove(int fromRow, int fromCol, int toRow, int toCol);
 
 };
 

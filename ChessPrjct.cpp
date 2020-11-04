@@ -55,11 +55,8 @@ char ChessBoard::checkTurn(){
 	if (turn % 2 == 1){
 		checked = 'W';
 	}
-	else if(turn % 2 == 0){
-		checked = 'B';
-	}
 	else{
-		checked = 'r';
+		checked = 'B';
 	}
 	
 	return checked;
@@ -75,7 +72,6 @@ void ChessBoard::move(int fromRow, int fromCol, int toRow, int toCol){
 		
 			boardSquare[fromRow][fromCol].occupyingPiece = temp;
 			boardSquare[fromRow][fromCol].hasPiece = false;
-			//turn++;//next turn
 
 			if (isInCheck()) {// is the king in check? if so, undo the last move
 				boardSquare[fromRow][fromCol].occupyingPiece = boardSquare[toRow][toCol].occupyingPiece;
@@ -83,13 +79,35 @@ void ChessBoard::move(int fromRow, int fromCol, int toRow, int toCol){
 
 				boardSquare[toRow][toCol].occupyingPiece = temp;
 				boardSquare[toRow][toCol].hasPiece = false;
-				//turn--;
 
 				std::cout << "Illegal move! King is in Check!" << std::endl;
 				std::cin.get();
 			}
 
 			else {
+				if (boardSquare[toRow][toCol].occupyingPiece.symbol == 'P' && toRow == 0) {//promotion (white pawns)
+					std::string promote;
+					std::cout << "Promote. Enter 'Q' (white queen), 'N'(white knight), 'R'(white rook) or 'B'(white bishop) to select piece.\n>";
+					std::getline(std::cin, promote);
+					if (promote[0] == 'Q' || promote[0] == 'N' || promote[0] == 'R' || promote[0] == 'B') {
+						boardSquare[toRow][toCol].occupyingPiece.symbol = promote[0];
+					}
+					else {
+						boardSquare[toRow][toCol].occupyingPiece.symbol = 'Q';//default promotion
+					}
+				}
+				if (boardSquare[toRow][toCol].occupyingPiece.symbol == 'p' && toRow == 7) {//promotion (black pawns)
+					std::string promote;
+					std::cout << "Promote. Enter 'q' (black queen), 'n'(black knight), 'r'(black rook) or 'b'(black bishop) to select piece.\n>";
+					std::getline(std::cin, promote);
+					if (promote[0] == 'q' || promote[0] == 'n' || promote[0] == 'r' || promote[0] == 'b') {
+						boardSquare[toRow][toCol].occupyingPiece.symbol = promote[0];
+					}
+					else {
+						boardSquare[toRow][toCol].occupyingPiece.symbol = 'q';//default promotion
+					}
+				}
+
 				turn++;//next turn
 			}
 			
@@ -109,27 +127,21 @@ void ChessBoard::move(int fromRow, int fromCol, int toRow, int toCol){
 
 }
 
-bool ChessBoard::checkAfterMove(int fromRow, int fromCol, int toRow, int toCol) {
+bool ChessBoard::checkAfterMove(int fromRow, int fromCol, int toRow, int toCol, ChessBoard copyBoard, int currentTurn) {
 	Piece temp;
 	bool stillCheck = false;
+	copyBoard.turn = currentTurn;
 
 	//make move
-	boardSquare[toRow][toCol].occupyingPiece = boardSquare[fromRow][fromCol].occupyingPiece;
-	boardSquare[toRow][toCol].hasPiece = true;
+	copyBoard.boardSquare[toRow][toCol].occupyingPiece = boardSquare[fromRow][fromCol].occupyingPiece;
+	copyBoard.boardSquare[toRow][toCol].hasPiece = true;
 
-	boardSquare[fromRow][fromCol].occupyingPiece = temp;
-	boardSquare[fromRow][fromCol].hasPiece = false;
+	copyBoard.boardSquare[fromRow][fromCol].occupyingPiece = temp;
+	copyBoard.boardSquare[fromRow][fromCol].hasPiece = false;
 
-	if (isInCheck()) {// is the king still in check?
+	if (copyBoard.isInCheck()) {// is the king still in check?
 		stillCheck = true;
 	}
-
-	//undo move
-	boardSquare[fromRow][fromCol].occupyingPiece = boardSquare[toRow][toCol].occupyingPiece;
-	boardSquare[fromRow][fromCol].hasPiece = true;
-
-	boardSquare[toRow][toCol].occupyingPiece = temp;
-	boardSquare[toRow][toCol].hasPiece = false;
 
 	return stillCheck;
 }
@@ -183,17 +195,7 @@ bool ChessBoard::Piece::moveIsLegal(int fromRow, int fromCol, int toRow, int toC
 		else if(colour == 'W' && (fromRow - toRow) == 1 && abs(fromCol - toCol) == 1 && cBoard->boardSquare[toRow][toCol].hasPiece && cBoard->boardSquare[toRow][toCol].occupyingPiece.colour != 'W'){//capturing a piece diagonally
 			isLegal = true;
 		}
-		/*if(isLegal && colour == 'W' && toRow == 0){//promotion
-			char promote;
-			std::cout<<"Promote. Enter 'Q' (white queen), 'N'(white knight), 'R'(white rook) or 'B'(white bishop) to select piece.\n>";
-			std::cin >> promote;
-			if(promote == 'Q' || promote == 'N' || promote == 'R' || promote == 'B'){
-				symbol = promote;
-			}
-			else{
-				isLegal = false;
-			}
-		}*/
+		
 		
 		//black pawns
 		if(colour == 'B' && (fromRow - toRow) == -1 && (fromCol - toCol) == 0 && !(cBoard->boardSquare[toRow][toCol].hasPiece) ){
@@ -205,17 +207,7 @@ bool ChessBoard::Piece::moveIsLegal(int fromRow, int fromCol, int toRow, int toC
 		else if(colour == 'B' && (fromRow - toRow) == -1 && abs(fromCol - toCol) == 1 && cBoard->boardSquare[toRow][toCol].hasPiece && cBoard->boardSquare[toRow][toCol].occupyingPiece.colour != 'B'){//capturing a piece diagonally
 			isLegal = true;
 		}
-		/*if(isLegal && colour == 'B' && toRow == 7){//promotion
-			char promote;
-			std::cout<<"Promote. Enter 'q' (black queen), 'n'(black knight), 'r'(black rook) or 'b'(black bishop) to select piece.\n>";
-			std::cin >> promote;
-			if(promote == 'q' || promote == 'n' || promote == 'r' || promote == 'b'){
-				symbol = promote;
-			}
-			else{
-				isLegal = false;
-			}
-		}*/
+		
 	}
 	
 	if(symbol == 'R' || symbol == 'r'){//rooks
@@ -594,194 +586,26 @@ bool ChessBoard::isInCheck(int posRow, int posCol) {
 
 bool ChessBoard::Checkmate() {
 	char kingColour = checkTurn();
-	char kingSymbol = ' ';
-	int pos[2] = { 0, 0 };
-	bool isCheckmate = isInCheck();// if the king is in check, assume checkmate and then check if that is true later
+	bool isCheckmate = true;// if the king is in check, assume checkmate and then check if that is true later
 
-	kingColour == 'W' ? kingSymbol = 'K' : kingSymbol = 'k';
-
-	//get the position of the king
+	//make every possible move and check if the king is still in check after each of them
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.symbol == kingSymbol) {
-				pos[0] = i;
-				pos[1] = j;
+			if (boardSquare[i][j].hasPiece) {
+				for (int k = 0; k < 8; k++) {
+					for (int l = 0; l < 8; l++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour 
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, k, l, this)) {
+							if (checkAfterMove(i, j, k, l, *this, turn) == false) {
+								isCheckmate = false;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-
-	int aroundKing[8][2] = {
-							{1,0},//row above, same col
-							{1,1},//row above, next col
-							{1,-1},//row above, previous col
-
-							{0,1},//same row, next col
-							{0,-1},//same row, previous col
-
-							{-1,0},//row below, same col
-							{-1,1},//row below, next col
-							{-1,-1}//row below, previous col
-	};
-
-	int eighthRank[5][2] = {
-							{1,0},//row above, same col
-							{1,1},//row above, next col
-							{1,-1},//row above, previous col
-
-							{0,1},//same row, next col
-							{0,-1},//same row, previous col
-	};
-
-	int firstRank[5][2] = {
-							{0,1},//same row, next col
-							{0,-1},//same row, previous col
-
-							{-1,0},//row below, same col
-							{-1,1},//row below, next col
-							{-1,-1}//row below, previous col
-	};
-
-	int eighthFile[5][2] = {
-							{1,0},//row above, same col
-							{1,-1},//row above, previous col
-							{0,-1},//same row, previous col
-
-							{-1,0},//row below, same col
-							{-1,-1}//row below, previous col
-	};
-
-	int firstFile[5][2] = {
-							{1,0},//row above, same col
-							{1,1},//row above, next col
-
-							{0,1},//same row, next col
-
-							{-1,0},//row below, same col
-							{-1,1},//row below, next col
-	};
-
-	if (isCheckmate)
-	{
-		
-		if (pos[0] > 0 && pos[0] < 7 && pos[1] > 0 && pos[1] < 7) {
-			for (int i = 0; i < 8; i++) {
-				//does the king have an escape square?
-				if (boardSquare[pos[0] + aroundKing[i][0]][pos[1] + aroundKing[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1], this)) {
-					if (!isInCheck(pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1])) {//loops through the area around the king and check if it will be check there
-						isCheckmate = false;
-					}
-				}
-				//can the check be blocked by one of our pieces?
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
-							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1], this)) {
-							if (!checkAfterMove(i, j, pos[0] + aroundKing[i][0], pos[1] + aroundKing[i][1])) {
-								isCheckmate = false;
-							}
-						}
-					}
-				}
-
-				//can the attcking piece be captured by one of our pieces?
-
-			}
-		}
-
-		else if (pos[0] == 0) {
-			for (int i = 0; i < 5; i++) {
-				if (boardSquare[pos[0] + eighthRank[i][0]][pos[1] + eighthRank[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1], this)) {
-					if (!isInCheck(pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1])) {
-						isCheckmate = false;
-					}
-				}
-
-				//can the check be blocked by one of our pieces?
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
-							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1], this)) {
-							if (!checkAfterMove(i, j, pos[0] + eighthRank[i][0], pos[1] + eighthRank[i][1])) {
-								isCheckmate = false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		else if (pos[0] == 7) {
-			for (int i = 0; i < 5; i++) {
-				if (boardSquare[pos[0] + firstRank[i][0]][pos[1] + firstRank[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + firstRank[i][0], pos[1] + firstRank[i][1], this)) {
-					if (!isInCheck(pos[0] + firstRank[i][0], pos[1] + firstRank[i][1])) {
-						isCheckmate = false;
-					}
-				}
-
-				//can the check be blocked by one of our pieces?
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
-							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + firstRank[i][0], pos[1] + firstRank[i][1], this)) {
-							if (!checkAfterMove(i, j, pos[0] + firstRank[i][0], pos[1] + firstRank[i][1])) {
-								isCheckmate = false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		else if (pos[1] == 0) {
-			for (int i = 0; i < 5; i++) {
-				if (boardSquare[pos[0] + firstFile[i][0]][pos[1] + firstFile[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + firstFile[i][0], pos[1] + firstFile[i][0], this)) {
-					if (!isInCheck(pos[0] + firstFile[i][0], pos[1] + firstFile[i][1])) {
-						isCheckmate = false;
-					}
-				}
-
-				//can the check be blocked by one of our pieces?
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
-							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + firstFile[i][0], pos[1] + firstFile[i][1], this)) {
-							if (!checkAfterMove(i, j, pos[0] + firstFile[i][0], pos[1] + firstFile[i][1])) {
-								isCheckmate = false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		else if (pos[1] == 7) {
-			for (int i = 0; i < 5; i++) {
-				if (boardSquare[pos[0] + eighthFile[i][0]][pos[1] + eighthFile[i][1]].occupyingPiece.moveIsLegal(pos[0], pos[1], pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1], this)) {
-					if (!isInCheck(pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1])) {
-						isCheckmate = false;
-					}
-				}
-
-				//can the check be blocked by one of our pieces?
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == kingColour
-							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1], this)) {
-							if (!checkAfterMove(i, j, pos[0] + eighthFile[i][0], pos[1] + eighthFile[i][1])) {
-								isCheckmate = false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		//can the check be blocked?
-
-
-		//can the attacking piece be captured?
-		
-	}
+	
 
 	return isCheckmate;
 }

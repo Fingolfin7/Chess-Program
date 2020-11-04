@@ -52,10 +52,15 @@ int main(){
 	
 	//draw(myChessBoard);
 	
-	while(!gameOver){//basically an infinit loop
+	while(!gameOver){//ends upon checkmate
 	
 		try{
 			draw(myChessBoard);
+			if (myChessBoard.isInCheck()) {
+				std::cout << "*Check*" << std::endl;
+				//std::cin.get();
+			}
+
 			if (!myChessBoard.Checkmate()) {
 				std::cout << "Enter move: " << std::endl;
 				std::cout << ">";
@@ -65,6 +70,7 @@ int main(){
 
 				myChessBoard.move(parsedMove[0], parsedMove[1], parsedMove[2], parsedMove[3]);
 
+				
 				//draw(myChessBoard);
 
 				playerMove.clear();

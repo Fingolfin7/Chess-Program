@@ -20,6 +20,8 @@ Things I've managed to implement:
     
     -> And a Turn system. Check to see if it's black's or whites turn
     
+    -> Pawn promotions
+    
     -> Kings are always seperated from each other by at least one square in every direction.
     
     -> Checks, and

@@ -3,6 +3,8 @@ workspace "Chess-Program"
 	configurations {"Debug", "Release"}
 
 project "Chess-Program"
+	architecture "x86"
+
 	location "Chess-Program"
 	kind "ConsoleApp"
 	language "C++"

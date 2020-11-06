@@ -3,7 +3,7 @@ A chess project I worked on. This is a simple two player console game with no A.
 I really enjoyed doing this. And even though I know that this isn't the best chess program out there, 
 it works and all the pieces move as they should. That's something.
 
-##Getting Started
+## Getting Started
 Visual Studio 2019 is recommended,
 
 Start by cloning the repository or downloading the zip file.
@@ -18,7 +18,7 @@ You can generate solutions for vs2019, vs2017, vs2010 etc.
 "main.cpp" contains the draw() function and the main game loop. 
 
 
-###Things I've managed to implement:  
+### Things I've managed to implement:  
 
 -> A "chessboard" class that contains an 8x8 array of "Square" objects
     
@@ -38,7 +38,7 @@ You can generate solutions for vs2019, vs2017, vs2010 etc.
     
 -> Checkmate
 
-###Things I have not managed to implement:
+### Things I have not managed to implement:
 
 -> en-passant captures,
     

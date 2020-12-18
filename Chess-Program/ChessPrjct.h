@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <string>
+#include <vector>
 #include <array>
 
 class ChessBoard{
@@ -56,7 +58,8 @@ class ChessBoard{
 		bool Checkmate();
 		void move(int formRow, int fromCol, int toRow, int toCol);
 		bool checkAfterMove(int fromRow, int fromCol, int toRow, int toCol, ChessBoard copyBoard, int currentTurn);
-
+		std::vector<std::array<int, 4>> getPossibleMoves();//returns a list of all the possible moves
+		
 };
 
 

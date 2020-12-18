@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include "ChessPrjct.h"
 
 void draw(const ChessBoard &myChessBoard){
@@ -54,6 +53,7 @@ int main(){
 	std::cout << "* 2 players, no computer opponent." << std::endl;
 	std::cout << "* Start game as white.\n" << std::endl;
 	std::cout << "Input format is from-to coordinates, e.g: 7555 moves (row,col)=(7,5) to (row,col)=(5,5)" << std::endl;
+	std::cout << "Enter 'moveList'or 'list' to see a list of all the possible moves for the current turn." << std::endl;
 	std::cout << "Enter 'q' or 'Q' to exit." << std::endl;
 	std::cout << "\n>";
 	std::cin.get();
@@ -78,6 +78,23 @@ int main(){
 					std::cout << "\n>";
 					std::cin.get();
 					break;
+				}
+				else if (playerMove == "moveList" || playerMove == "list") {
+					std::cout << std::endl;
+					std::vector<std::array<int, 4>> possibleMoves = myChessBoard.getPossibleMoves();
+
+					for (int i = 0; i < possibleMoves.size() - 4; i += 3) {
+						for (int j = 0; j < 3; j++) {
+							std::cout << possibleMoves[i + j][0] << possibleMoves[i + j][1]
+								<< possibleMoves[i + j][2] << possibleMoves[i + j][3] << ", ";
+						}
+						std::cout << std::endl;
+					}
+
+					std::cout << std::endl << std::endl;
+					std::cout << "Enter move: " << std::endl;
+					std::cout << ">";
+					std::getline(std::cin, playerMove);
 				}
 
 				parsedMove = parseInput(playerMove);

@@ -609,3 +609,26 @@ bool ChessBoard::Checkmate() {
 
 	return isCheckmate;
 }
+
+std::vector<std::array<int, 4>> ChessBoard::getPossibleMoves() {
+	std::array<int, 4> move;
+	std::vector<std::array<int, 4>>possibleMoves;
+
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (boardSquare[i][j].hasPiece) {
+				for (int k = 0; k < 8; k++) {
+					for (int l = 0; l < 8; l++) {
+						if (boardSquare[i][j].hasPiece && boardSquare[i][j].occupyingPiece.colour == checkTurn()
+							&& boardSquare[i][j].occupyingPiece.moveIsLegal(i, j, k, l, this)) {
+							move = { i + 1,j + 1,k + 1,l + 1 };
+							possibleMoves.push_back(move);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return possibleMoves;
+}

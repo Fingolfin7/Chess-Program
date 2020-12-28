@@ -109,6 +109,7 @@ void ChessBoard::move(int fromRow, int fromCol, int toRow, int toCol){
 				}
 
 				turn++;//next turn
+				moveList.push_back({ fromRow, fromCol, toRow, toCol }); //adds legal move to the moveList vector
 			}
 			
 		}
@@ -631,4 +632,19 @@ std::vector<std::array<int, 4>> ChessBoard::getPossibleMoves() {
 	}
 
 	return possibleMoves;
+}
+
+void ChessBoard::recordGame() {
+	std::string date = __DATE__;
+	std::string saveFile = date + "__" + std::to_string(moveList.size()) + " moves__.txt";
+	std::ofstream writer(saveFile);
+	if (writer.is_open()) {
+		for (std::array<int, 4>gameMove : moveList) {
+			writer << gameMove[0] << gameMove[1] << gameMove[2] << gameMove[3] << std::endl;
+		}
+	}
+	else {
+		std::cout << "Error! Failed to save game!" << std::endl;
+		std::cin.get();
+	}
 }

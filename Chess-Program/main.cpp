@@ -77,6 +77,7 @@ int main(){
 					std::cout << "\t\t" << "***Game Exited***" << std::endl;
 					std::cout << "\n>";
 					std::cin.get();
+					myChessBoard.recordGame();
 					break;
 				}
 				else if (playerMove == "moveList" || playerMove == "list") {
@@ -114,6 +115,7 @@ int main(){
 				std::cin.get();
 
 				gameOver = true;
+				myChessBoard.recordGame();
 			}
 		}
 			

@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <vector>
 #include <array>
 
@@ -49,7 +50,7 @@ class ChessBoard{
 	public:	
 		int turn;
 		std::array<std::array<Square, 8>, 8> boardSquare;//this would have been fine too -> Square boardSqaure[8][8] 
-		//Square boardSquare[8][8];
+		std::vector<std::array<int, 4>> moveList;
 		
 		ChessBoard();
 		char checkTurn();
@@ -57,9 +58,9 @@ class ChessBoard{
 		bool isInCheck(int posRow, int posCol);
 		bool Checkmate();
 		void move(int formRow, int fromCol, int toRow, int toCol);
-		bool checkAfterMove(int fromRow, int fromCol, int toRow, int toCol, ChessBoard copyBoard, int currentTurn);
+		bool checkAfterMove(int fromRow, int fromCol, int toRow, int toCol, ChessBoard copyBoard, int currentTurn);//checks to see if the king will be in check aftera given move
 		std::vector<std::array<int, 4>> getPossibleMoves();//returns a list of all the possible moves
-		
+		void recordGame();
 };
 
 

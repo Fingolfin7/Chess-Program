@@ -1,3 +1,4 @@
+![Screenshot](https://github.com/Fingolfin7/Chess-Program/blob/master/italian%20game.png?raw=true)
 # Chess-Program
 A chess project I worked on. This is a simple two player console game with no A.I opponents. 
 I really enjoyed doing this. And even though I know that this isn't the best chess program out there, 

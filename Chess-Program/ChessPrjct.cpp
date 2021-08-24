@@ -635,8 +635,17 @@ std::vector<std::array<int, 4>> ChessBoard::getPossibleMoves() {
 }
 
 void ChessBoard::recordGame() {
-	std::string date = __DATE__;
-	std::string saveFile = date + "__" + std::to_string(moveList.size()) + " moves__.txt";
+	time_t rawtime;
+	struct tm* timeinfo;
+	char buffer[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buffer, sizeof(buffer), "%d-%m-%Y", timeinfo);
+	std::string date(buffer);
+
+	std::string saveFile = date + " (" + std::to_string(moveList.size()) + " moves).txt";
 	std::ofstream writer(saveFile);
 	if (writer.is_open()) {
 		for (std::array<int, 4>gameMove : moveList) {
